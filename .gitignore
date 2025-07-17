@@ -4,6 +4,15 @@
 .env.*.local
 env.yaml
 
+# Deployment files with secrets
+cloudbuild-env-only.yaml
+cloudbuild-simple.yaml
+setup_secrets.sh
+
+# Test files that may contain secrets
+test_config.py
+test_startup.py
+
 # Python
 __pycache__/
 *.py[cod]
