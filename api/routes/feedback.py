@@ -31,7 +31,7 @@ async def workout_feedback(
         workout_agent = WorkoutPlanningAgent()
         
         insights = await workout_agent.analyze_completed_workout(
-            workout_data.activity.dict(),
+            workout_data.activity.model_dump(),
             workout_data.planned_workout
         )
         

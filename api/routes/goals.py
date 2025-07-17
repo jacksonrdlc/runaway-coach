@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Any
 from datetime import datetime, timedelta
+from dataclasses import asdict
 import logging
 
 from ..main import get_current_user
@@ -23,7 +24,7 @@ async def assess_goals(
         
         return {
             "success": True,
-            "goal_assessments": [assessment.dict() for assessment in assessments]
+            "goal_assessments": [asdict(assessment) for assessment in assessments]
         }
         
     except Exception as e:
@@ -57,7 +58,7 @@ async def generate_training_plan(
                 
             weekly_workouts.append({
                 "week": week + 1,
-                "workouts": [w.dict() for w in week_workouts]
+                "workouts": [asdict(w) for w in week_workouts]
             })
         
         return {

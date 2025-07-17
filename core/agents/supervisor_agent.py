@@ -53,71 +53,23 @@ class RunningCoachSupervisor:
         logger.info(f"RunningCoachSupervisor initialized - client available: {self.client is not None}")
     
     async def analyze_runner(self, runner_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Comprehensive runner analysis using agentic workflow"""
+        """Comprehensive runner analysis using LangGraph workflow"""
         try:
-            # Use real Anthropic API if available
-            if self.client:
-                analysis_prompt = f"""
-                Analyze this runner's data and provide insights:
-                
-                User ID: {runner_data.get('user_id', 'unknown')}
-                Activities: {len(runner_data.get('activities', []))} recent activities
-                Goals: {runner_data.get('goals', [])}
-                Profile: {runner_data.get('profile', {})}
-                
-                Provide analysis in JSON format with:
-                - performance_metrics (weekly_mileage, avg_pace, consistency_score)
-                - recommendations (list of 3-5 actionable items)
-                - insights (key observations about their running)
-                """
-                
-                try:
-                    response = await self.client.messages.create(
-                        model="claude-3-sonnet-20240229",
-                        max_tokens=1000,
-                        messages=[{
-                            "role": "user", 
-                            "content": analysis_prompt
-                        }]
-                    )
-                    
-                    # Parse the response and structure it
-                    ai_analysis = response.content[0].text
-                    
-                    analysis = {
-                        "performance_metrics": {
-                            "weekly_mileage": 25.0,  # Would parse from AI response
-                            "avg_pace": "8:30",
-                            "consistency_score": 0.75
-                        },
-                        "recommendations": [
-                            "AI-generated recommendation based on data",
-                            "Personalized training advice",
-                            "Goal-specific guidance"
-                        ],
-                        "ai_insights": ai_analysis,
-                        "agent_metadata": {
-                            "agents_used": ["supervisor", "anthropic_ai"],
-                            "processing_time": 2.5,
-                            "llm_available": True,
-                            "model_used": "claude-3-sonnet-20240229"
-                        }
-                    }
-                    
-                except Exception as ai_error:
-                    logger.error(f"AI analysis failed: {ai_error}")
-                    # Fall back to structured analysis
-                    analysis = self._get_fallback_analysis(runner_data)
-            else:
-                # Fallback analysis when no AI client
-                analysis = self._get_fallback_analysis(runner_data)
-            
-            logger.info(f"Analysis completed for user: {runner_data.get('user_id', 'unknown')}")
-            return analysis
+            # Try to use LangGraph workflow if available
+            try:
+                from ..workflows.runner_analysis_workflow import RunnerAnalysisWorkflow
+                workflow = RunnerAnalysisWorkflow()
+                analysis = await workflow.analyze_runner(runner_data)
+                logger.info(f"LangGraph analysis completed for user: {runner_data.get('user_id', 'unknown')}")
+                return analysis
+            except ImportError:
+                logger.warning("LangGraph not available, using fallback analysis")
+                return self._get_fallback_analysis(runner_data)
             
         except Exception as e:
-            logger.error(f"Analysis failed: {str(e)}")
-            raise
+            logger.error(f"Analysis failed: {str(e)}, falling back to simple analysis")
+            # Fall back to simple analysis if anything fails
+            return self._get_fallback_analysis(runner_data)
     
     def _get_fallback_analysis(self, runner_data: Dict[str, Any]) -> Dict[str, Any]:
         """Fallback analysis when AI is not available"""

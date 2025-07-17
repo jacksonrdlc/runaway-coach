@@ -76,7 +76,7 @@ CLAUDE_MODEL=claude-3-sonnet-20240229
 
 # Supabase Configuration
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-anon-key
+SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_KEY=your-service-key
 
 # Redis Configuration (optional)
@@ -576,7 +576,7 @@ docker run -p 8000:8000 --env-file .env runaway-coach
 # Required environment variables
 ANTHROPIC_API_KEY=your-anthropic-key
 SUPABASE_URL=your-supabase-url
-SUPABASE_KEY=your-supabase-key
+SUPABASE_ANON_KEY=your-supabase-anon-key
 SWIFT_APP_API_KEY=your-swift-api-key
 API_SECRET_KEY=your-secret-key
 ```

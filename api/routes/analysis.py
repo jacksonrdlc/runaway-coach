@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 # Import get_current_user from main module
 from ..main import get_current_user
 
-# Initialize supervisor agent
-supervisor = RunningCoachSupervisor()
+# Import lazy supervisor getter
+from ..main import get_supervisor
 
 @router.post("/runner", response_model=AnalysisResponse)
 async def analyze_runner(
@@ -42,7 +42,8 @@ async def analyze_runner(
         if not runner_data.get("activities"):
             raise HTTPException(status_code=400, detail="Activities data is required")
         
-        # Run comprehensive analysis
+        # Run comprehensive analysis using lazy-initialized supervisor
+        supervisor = get_supervisor()
         analysis = await supervisor.analyze_runner(runner_data)
         
         processing_time = time.time() - start_time

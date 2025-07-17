@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # Supabase Configuration
     SUPABASE_URL: str
     SUPABASE_SERVICE_KEY: str
-    SUPABASE_KEY: str
+    SUPABASE_ANON_KEY: str
     
     # Redis Configuration
     REDIS_URL: str = "redis://localhost:6379/0"

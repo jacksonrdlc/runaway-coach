@@ -41,8 +41,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize supervisor agent
-supervisor = RunningCoachSupervisor()
+# Lazy initialization of supervisor agent
+supervisor = None
+
+def get_supervisor():
+    """Get supervisor instance with lazy initialization"""
+    global supervisor
+    if supervisor is None:
+        supervisor = RunningCoachSupervisor()
+    return supervisor
 
 # Dependency for authentication
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -83,10 +90,12 @@ async def health_check():
 from .routes.analysis import router as analysis_router
 from .routes.feedback import router as feedback_router  
 from .routes.goals import router as goals_router
+from .routes.langgraph import router as langgraph_router
 
 app.include_router(analysis_router)
 app.include_router(feedback_router)
 app.include_router(goals_router)
+app.include_router(langgraph_router)
 
 # Add startup event
 @app.on_event("startup")
@@ -95,21 +104,7 @@ async def startup_event():
     logger.info("Starting Runaway Coach API")
     logger.info(f"Claude Model: {settings.CLAUDE_MODEL}")
     logger.info(f"Supabase URL: {settings.SUPABASE_URL}")
-    
-    # Initialize agents
-    try:
-        if supervisor.client is not None:
-            # Test Anthropic API connection
-            test_response = await supervisor.client.messages.create(
-                model="claude-3-sonnet-20240229",
-                max_tokens=10,
-                messages=[{"role": "user", "content": "Health check"}]
-            )
-            logger.info("Anthropic API connection successful")
-        else:
-            logger.info("Anthropic API not available - using fallback mode")
-    except Exception as e:
-        logger.error(f"Anthropic API connection failed: {str(e)}")
+    logger.info("API startup complete - agents will be initialized on first use")
 
 @app.on_event("shutdown")
 async def shutdown_event():
