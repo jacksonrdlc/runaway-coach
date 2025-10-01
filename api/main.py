@@ -14,6 +14,7 @@ from models import (
 )
 from utils.config import get_settings
 from utils.logger import setup_logging
+from utils.auth import get_supabase_auth
 
 # Setup
 settings = get_settings()
@@ -51,15 +52,44 @@ def get_supervisor():
         supervisor = RunningCoachSupervisor()
     return supervisor
 
+# Initialize Supabase Auth
+supabase_auth = get_supabase_auth()
+
+
 # Dependency for authentication
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Validate authentication token from Swift app"""
+    """
+    Validate authentication token
+
+    Supports two authentication methods:
+    1. Supabase JWT tokens (recommended for production)
+    2. Simple API key (for backwards compatibility)
+    """
     token = credentials.credentials
-    # Implement your authentication logic here
-    # This should validate the token from your Swift app
-    if not token or token != settings.SWIFT_APP_API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid authentication token")
-    return {"user_id": "authenticated"}
+
+    # Try Supabase JWT validation first
+    if token and token != settings.SWIFT_APP_API_KEY:
+        try:
+            # Validate JWT token and extract user info
+            user_info = supabase_auth.validate_token(token)
+            logger.info(f"Authenticated user via JWT: {user_info.get('email')}")
+            return user_info
+        except HTTPException as e:
+            # If JWT validation fails, re-raise the exception
+            logger.warning(f"JWT validation failed: {e.detail}")
+            raise
+
+    # Fallback to simple API key authentication (backwards compatibility)
+    if token == settings.SWIFT_APP_API_KEY:
+        logger.info("Authenticated via API key (legacy)")
+        return {
+            "user_id": "api_key_auth",
+            "auth_user_id": None,
+            "auth_method": "api_key"
+        }
+
+    # No valid authentication
+    raise HTTPException(status_code=401, detail="Invalid authentication token")
 
 @app.get("/")
 async def root():
@@ -88,14 +118,16 @@ async def health_check():
 
 # Import and include routers
 from .routes.analysis import router as analysis_router
-from .routes.feedback import router as feedback_router  
+from .routes.feedback import router as feedback_router
 from .routes.goals import router as goals_router
 from .routes.langgraph import router as langgraph_router
+from .routes.enhanced_analysis import router as enhanced_analysis_router
 
 app.include_router(analysis_router)
 app.include_router(feedback_router)
 app.include_router(goals_router)
 app.include_router(langgraph_router)
+app.include_router(enhanced_analysis_router)
 
 # Add startup event
 @app.on_event("startup")

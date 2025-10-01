@@ -38,11 +38,11 @@ steps:
     - '--concurrency'
     - '80'
     - '--set-env-vars'
-    - 'ENVIRONMENT=production,PYTHONUNBUFFERED=1,PYTHONPATH=/app,CLAUDE_MODEL=claude-3-5-sonnet-20241022,SUPABASE_URL=https://onymzwnbxsvltsxpcidy.supabase.co,REDIS_URL=redis://localhost:6379/0,API_HOST=0.0.0.0,API_PORT=8000,API_ALGORITHM=HS256,LOG_LEVEL=INFO,LOG_FORMAT=json,SWIFT_APP_BASE_URL=http://localhost:3000'
+    - 'ENVIRONMENT=production,PYTHONUNBUFFERED=1,PYTHONPATH=/app,CLAUDE_MODEL=claude-3-5-sonnet-20241022,SUPABASE_URL=https://nkxvjcdxiyjbndjvfmqy.supabase.co,REDIS_URL=redis://localhost:6379/0,API_HOST=0.0.0.0,API_PORT=8000,API_ALGORITHM=HS256,LOG_LEVEL=INFO,LOG_FORMAT=json,SWIFT_APP_BASE_URL=http://localhost:3000'
     - '--cpu-throttling'
     - '--no-cpu-throttling'
     - '--set-secrets'
-    - 'ANTHROPIC_API_KEY=runaway-anthropic-key:latest,SUPABASE_SERVICE_KEY=runaway-supabase-service:latest,SUPABASE_ANON_KEY=runaway-supabase-anon:latest,API_SECRET_KEY=runaway-api-secret:latest,SWIFT_APP_API_KEY=runaway-swift-api-key:latest'
+    - 'ANTHROPIC_API_KEY=runaway-anthropic-key:latest,SUPABASE_SERVICE_KEY=runaway-supabase-service:latest,SUPABASE_ANON_KEY=runaway-supabase-anon:latest,SUPABASE_JWT_SECRET=runaway-supabase-jwt-secret:latest,API_SECRET_KEY=runaway-api-secret:latest,SWIFT_APP_API_KEY=runaway-swift-api-key:latest'
 
 options:
   # Use more powerful machine for builds

@@ -3,20 +3,28 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 import logging
 
-from ..models import Activity, RunnerProfile, GoalModel
-from ..utils.config import get_settings
+try:
+    from models import Activity, RunnerProfile
+    from utils.config import get_settings
+except ImportError:
+    from ..models import Activity, RunnerProfile
+    from ..utils.config import get_settings
+
+from integrations.supabase_queries import SupabaseQueries
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
 class SupabaseClient:
-    """Client for interacting with Supabase database"""
-    
+    """Client for interacting with Supabase database (legacy interface)"""
+
     def __init__(self):
         self.client: Client = create_client(
             settings.SUPABASE_URL,
             settings.SUPABASE_SERVICE_KEY
         )
+        # New query layer for enhanced Strava data access
+        self.queries = SupabaseQueries(self.client)
     
     async def get_user_activities(
         self, 
@@ -58,37 +66,15 @@ class SupabaseClient:
             logger.error(f"Failed to fetch activities for user {user_id}: {str(e)}")
             return []
     
-    async def get_user_goals(self, user_id: int) -> List[GoalModel]:
+    async def get_user_goals(self, user_id: int) -> List[Dict[str, Any]]:
         """Fetch user goals from Supabase"""
         try:
             result = self.client.table("running_goals").select("*").eq(
                 "user_id", user_id
             ).eq("is_active", True).execute()
-            
-            goals = []
-            for row in result.data:
-                try:
-                    goal = GoalModel(
-                        id=row["id"],
-                        user_id=row["user_id"],
-                        type=row["goal_type"],
-                        target_value=row["target_value"],
-                        deadline=datetime.fromisoformat(row["deadline"].replace('Z', '+00:00')),
-                        created_date=datetime.fromisoformat(row["created_at"].replace('Z', '+00:00')),
-                        updated_date=datetime.fromisoformat(row["updated_at"].replace('Z', '+00:00')) if row.get("updated_at") else None,
-                        title=row["title"],
-                        is_active=row["is_active"],
-                        is_completed=row["is_completed"],
-                        current_progress=row.get("current_progress", 0.0),
-                        completed_date=datetime.fromisoformat(row["completed_at"].replace('Z', '+00:00')) if row.get("completed_at") else None
-                    )
-                    goals.append(goal)
-                except Exception as e:
-                    logger.warning(f"Failed to parse goal {row.get('id', 'unknown')}: {str(e)}")
-                    continue
-            
-            return goals
-            
+
+            return result.data if result.data else []
+
         except Exception as e:
             logger.error(f"Failed to fetch goals for user {user_id}: {str(e)}")
             return []

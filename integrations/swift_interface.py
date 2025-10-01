@@ -3,7 +3,10 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 import logging
 
-from ..utils.config import get_settings
+try:
+    from utils.config import get_settings
+except ImportError:
+    from ..utils.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()

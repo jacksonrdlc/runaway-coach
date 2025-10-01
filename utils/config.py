@@ -12,7 +12,8 @@ class Settings(BaseSettings):
     # Supabase Configuration
     SUPABASE_URL: str
     SUPABASE_SERVICE_KEY: str
-    SUPABASE_ANON_KEY: str
+    SUPABASE_ANON_KEY: Optional[str] = None
+    SUPABASE_JWT_SECRET: Optional[str] = None  # For JWT validation in production
     
     # Redis Configuration
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -22,6 +23,9 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     API_SECRET_KEY: str
     API_ALGORITHM: str = "HS256"
+
+    # Environment
+    ENVIRONMENT: str = "development"  # development, staging, production
     
     # Logging
     LOG_LEVEL: str = "INFO"
