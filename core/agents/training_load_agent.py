@@ -7,7 +7,7 @@ and provides recovery recommendations using validated sports science methods.
 
 import logging
 from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
@@ -410,7 +410,7 @@ class TrainingLoadAgent:
         if not activities:
             return self._create_fallback_analysis()
 
-        reference_date = datetime.now()
+        reference_date = datetime.now(timezone.utc)
 
         # Calculate acute load (7 days)
         acute_load = self._calculate_load_by_period(activities, 7, reference_date)
@@ -523,6 +523,6 @@ class TrainingLoadAgent:
                 "Day 6": "Rest",
                 "Day 7": "50min long run"
             },
-            analysis_date=datetime.now(),
+            analysis_date=datetime.now(timezone.utc),
             fitness_trend="insufficient_data"
         )
