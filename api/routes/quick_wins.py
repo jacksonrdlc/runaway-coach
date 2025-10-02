@@ -114,13 +114,34 @@ async def get_weather_impact(
         agent = get_weather_agent()
         db_client = get_supabase_client()
 
-        # Use authenticated user if user_id not provided
+        # Resolve user_id to athlete_id
         if not user_id:
-            user_id = current_user.get("user_id") or current_user.get("sub")
+            # Get auth user ID from JWT token
+            auth_user_id = current_user.get("sub") or current_user.get("user_id")
+            if not auth_user_id:
+                raise HTTPException(status_code=401, detail="No user identifier in token")
+
+            # Look up athlete record to get athlete_id
+            athlete = await db_client.queries.get_athlete(auth_user_id)
+            if not athlete:
+                raise HTTPException(status_code=404, detail="Athlete not found for authenticated user")
+
+            athlete_id = athlete.id
+        else:
+            # user_id provided as parameter - could be athlete_id or auth_user_id
+            # Try as athlete_id first (integer)
+            try:
+                athlete_id = int(user_id)
+            except ValueError:
+                # Not an integer, must be auth_user_id (UUID)
+                athlete = await db_client.queries.get_athlete(user_id)
+                if not athlete:
+                    raise HTTPException(status_code=404, detail="Athlete not found")
+                athlete_id = athlete.id
 
         # Fetch activities
         activities = await db_client.queries.get_recent_activities(
-            athlete_id=int(user_id),
+            athlete_id=athlete_id,
             limit=limit
         )
 
@@ -187,13 +208,34 @@ async def get_vo2max_estimate(
         agent = get_vo2max_agent()
         db_client = get_supabase_client()
 
-        # Use authenticated user if user_id not provided
+        # Resolve user_id to athlete_id
         if not user_id:
-            user_id = current_user.get("user_id") or current_user.get("sub")
+            # Get auth user ID from JWT token
+            auth_user_id = current_user.get("sub") or current_user.get("user_id")
+            if not auth_user_id:
+                raise HTTPException(status_code=401, detail="No user identifier in token")
+
+            # Look up athlete record to get athlete_id
+            athlete = await db_client.queries.get_athlete(auth_user_id)
+            if not athlete:
+                raise HTTPException(status_code=404, detail="Athlete not found for authenticated user")
+
+            athlete_id = athlete.id
+        else:
+            # user_id provided as parameter - could be athlete_id or auth_user_id
+            # Try as athlete_id first (integer)
+            try:
+                athlete_id = int(user_id)
+            except ValueError:
+                # Not an integer, must be auth_user_id (UUID)
+                athlete = await db_client.queries.get_athlete(user_id)
+                if not athlete:
+                    raise HTTPException(status_code=404, detail="Athlete not found")
+                athlete_id = athlete.id
 
         # Fetch activities
         activities = await db_client.queries.get_recent_activities(
-            athlete_id=int(user_id),
+            athlete_id=athlete_id,
             limit=limit
         )
 
@@ -268,13 +310,34 @@ async def get_training_load(
         agent = get_training_load_agent()
         db_client = get_supabase_client()
 
-        # Use authenticated user if user_id not provided
+        # Resolve user_id to athlete_id
         if not user_id:
-            user_id = current_user.get("user_id") or current_user.get("sub")
+            # Get auth user ID from JWT token
+            auth_user_id = current_user.get("sub") or current_user.get("user_id")
+            if not auth_user_id:
+                raise HTTPException(status_code=401, detail="No user identifier in token")
+
+            # Look up athlete record to get athlete_id
+            athlete = await db_client.queries.get_athlete(auth_user_id)
+            if not athlete:
+                raise HTTPException(status_code=404, detail="Athlete not found for authenticated user")
+
+            athlete_id = athlete.id
+        else:
+            # user_id provided as parameter - could be athlete_id or auth_user_id
+            # Try as athlete_id first (integer)
+            try:
+                athlete_id = int(user_id)
+            except ValueError:
+                # Not an integer, must be auth_user_id (UUID)
+                athlete = await db_client.queries.get_athlete(user_id)
+                if not athlete:
+                    raise HTTPException(status_code=404, detail="Athlete not found")
+                athlete_id = athlete.id
 
         # Fetch activities (need at least 28 days for chronic load)
         activities = await db_client.queries.get_recent_activities(
-            athlete_id=int(user_id),
+            athlete_id=athlete_id,
             limit=limit
         )
 
@@ -335,16 +398,40 @@ async def get_comprehensive_analysis(
     - Training Load
     """
     try:
-        # Use authenticated user if user_id not provided
+        # Resolve user_id to athlete_id
+        db_client = get_supabase_client()
+
         if not user_id:
-            user_id = current_user.get("user_id") or current_user.get("sub")
+            # Get auth user ID from JWT token
+            auth_user_id = current_user.get("sub") or current_user.get("user_id")
+            if not auth_user_id:
+                raise HTTPException(status_code=401, detail="No user identifier in token")
+
+            # Look up athlete record to get athlete_id
+            athlete = await db_client.queries.get_athlete(auth_user_id)
+            if not athlete:
+                raise HTTPException(status_code=404, detail="Athlete not found for authenticated user")
+
+            resolved_user_id = str(athlete.id)
+        else:
+            # user_id provided as parameter - could be athlete_id or auth_user_id
+            # Try as athlete_id first (integer)
+            try:
+                int(user_id)  # Test if it's an integer
+                resolved_user_id = user_id
+            except ValueError:
+                # Not an integer, must be auth_user_id (UUID)
+                athlete = await db_client.queries.get_athlete(user_id)
+                if not athlete:
+                    raise HTTPException(status_code=404, detail="Athlete not found")
+                resolved_user_id = str(athlete.id)
 
         # Run all analyses in parallel
         import asyncio
 
-        weather_task = get_weather_impact(user_id=user_id, current_user=current_user)
-        vo2max_task = get_vo2max_estimate(user_id=user_id, current_user=current_user)
-        training_load_task = get_training_load(user_id=user_id, current_user=current_user)
+        weather_task = get_weather_impact(user_id=resolved_user_id, current_user=current_user)
+        vo2max_task = get_vo2max_estimate(user_id=resolved_user_id, current_user=current_user)
+        training_load_task = get_training_load(user_id=resolved_user_id, current_user=current_user)
 
         weather_result, vo2max_result, training_load_result = await asyncio.gather(
             weather_task,
@@ -356,7 +443,7 @@ async def get_comprehensive_analysis(
         # Build comprehensive response
         response = {
             "success": True,
-            "user_id": user_id,
+            "athlete_id": resolved_user_id,
             "analysis_date": datetime.now().isoformat(),
             "analyses": {}
         }
