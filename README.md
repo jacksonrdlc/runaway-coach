@@ -1,121 +1,345 @@
 # Runaway Coach API 🏃‍♂️
 
-AI-powered running coach using Claude API and agentic workflows. This FastAPI application provides comprehensive running analysis, personalized recommendations, and intelligent coaching through advanced AI agents.
+**AI-Powered Running Analytics Platform**
 
-## 🚀 Features
+A comprehensive FastAPI application that provides intelligent running analysis through a multi-agent AI system powered by Claude and LangGraph. Designed for iOS app integration with advanced features that compete with Strava, WHOOP, and Garmin.
 
-- **🧠 AI-Powered Analysis**: Uses Claude API for intelligent running analysis
-- **📊 Performance Tracking**: Comprehensive metrics and trend analysis
-- **🎯 Goal Management**: Smart goal setting and progress monitoring
-- **🏃‍♂️ Workout Planning**: Personalized workout recommendations
-- **⚡ Pace Optimization**: AI-driven pace recommendations
-- **📱 Swift Integration**: Built for iOS app integration
-- **🔒 Secure Authentication**: JWT-based authentication system
+[![Production](https://img.shields.io/badge/production-live-success)](https://runaway-coach-api-203308554831.us-central1.run.app)
+[![Python](https://img.shields.io/badge/python-3.13-blue)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688)](https://fastapi.tiangolo.com/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-0.2-purple)](https://github.com/langchain-ai/langgraph)
+
+---
+
+## 🎯 Overview
+
+Runaway Coach is an intelligent running analytics platform that provides:
+
+- **🌤️ Weather-Adjusted Training** - The only platform that factors heat stress and weather into your training
+- **💨 Free VO2 Max & Race Predictions** - What Strava charges $12/mo for
+- **⚡ ACWR Injury Prevention** - What WHOOP charges $30/mo for, plus features they don't have
+- **🎯 AI-Powered Coaching** - Personalized recommendations from Claude-powered agents
+- **📊 LangGraph Workflows** - Parallel execution of specialized agents (30-40% faster)
+
+**Production API**: https://runaway-coach-api-203308554831.us-central1.run.app
+
+---
+
+## 🚀 Quick Start
+
+### 5-Second Test
+```bash
+# No authentication required
+curl https://runaway-coach-api-203308554831.us-central1.run.app/health
+```
+
+### Get Your Running Insights
+```bash
+# Requires authentication
+curl -X GET "https://runaway-coach-api-203308554831.us-central1.run.app/quick-wins/comprehensive-analysis" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Interactive API Docs
+📚 **Swagger UI**: https://runaway-coach-api-203308554831.us-central1.run.app/docs
+
+---
 
 ## 📋 Table of Contents
 
-- [Installation](#installation)
-- [Environment Setup](#environment-setup)
-- [API Endpoints](#api-endpoints)
-- [Data Models](#data-models)
-- [AI Agents](#ai-agents)
-- [Authentication](#authentication)
-- [Docker Deployment](#docker-deployment)
-- [Development](#development)
+- [Key Features](#-key-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Quick Wins Endpoints](#-quick-wins-endpoints)
+- [Installation](#-installation)
+- [API Documentation](#-api-documentation)
+- [AI Agents](#-ai-agents)
+- [Workflow Visualization](#-workflow-visualization)
+- [Deployment](#-deployment)
+- [iOS Integration](#-ios-integration)
 
-## 🛠️ Installation
+---
+
+## ✨ Key Features
+
+### 🌤️ Weather Impact Analysis
+**Unique competitive advantage - no competitor has this**
+
+- Average temperature & humidity analysis
+- Heat stress assessment and tracking
+- Pace degradation estimates (seconds/mile slower in heat)
+- Heat acclimation level monitoring
+- Optimal training time recommendations
+
+### 💨 VO2 Max & Race Predictions
+**Free alternative to Strava's $12/mo subscription**
+
+- Multi-method VO2 max estimation (3 algorithms)
+- Fitness level classification (Elite → Below Average)
+- Race time predictions for 4 distances (5K, 10K, Half Marathon, Marathon)
+- vVO2 max pace for interval training
+- Confidence scoring on predictions
+
+### ⚡ Training Load & ACWR
+**Free alternative to WHOOP's $30/mo subscription + unique features**
+
+- Acute:Chronic Workload Ratio (ACWR) - injury prevention metric
+- Training Stress Score (TSS) calculation
+- Recovery status monitoring
+- Injury risk assessment (Low → Very High)
+- 7-day personalized workout plan
+- Training trend analysis (Ramping/Steady/Tapering)
+- Fitness trend tracking (Improving/Maintaining/Declining)
+
+### 🎯 Additional Features
+
+- **Goal Assessment** - Progress tracking with AI-powered feasibility scores
+- **Workout Planning** - Personalized plans with gear rotation and segment recommendations
+- **Performance Analysis** - Trend detection, consistency scoring, strength identification
+- **Pace Optimization** - Zone-based recommendations with heart rate mapping
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend Framework
+- **FastAPI** - Modern, high-performance Python web framework
+- **Python 3.13** - Latest stable Python
+- **Uvicorn** - Lightning-fast ASGI server
+
+### AI & Orchestration
+- **Anthropic Claude** - Claude 3.5 Sonnet (latest model)
+- **LangGraph** - Multi-agent workflow orchestration
+- **LangChain Core** - AI application framework
+
+### Database & Storage
+- **Supabase** - PostgreSQL database (hosted)
+- **Supabase Auth** - JWT-based authentication
+- Full **Strava data model** integration
+
+### External APIs
+- **Open-Meteo** - Free weather data (no API key required)
+- **Strava API** - Running activity sync (via Supabase)
+
+### Infrastructure
+- **Google Cloud Run** - Serverless container platform
+- **Google Cloud Build** - CI/CD pipeline
+- **Google Secret Manager** - Secure credential storage
+- **Docker** - Containerization
+
+### Data & Validation
+- **Pydantic v2** - Type-safe data validation
+- **Python Dataclasses** - Structured agent responses
+- **TypedDict** - Type hints for workflow state
+
+---
+
+## 🏗️ Architecture
+
+### Multi-Agent System
+
+The application uses **8 specialized AI agents** orchestrated by LangGraph:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    LangGraph Workflow                        │
+│                                                              │
+│  Start → Performance Analysis                               │
+│             ↓                                                │
+│             ├─→ Weather Context ──────┐                     │
+│             ├─→ VO2 Max Estimation ───┤                     │
+│             ├─→ Training Load ────────┼→ Pace Optimization  │
+│             └─→ Goal Assessment ──────┘         ↓           │
+│                                          Workout Planning    │
+│                                                 ↓            │
+│                                          Final Synthesis     │
+│                                                 ↓            │
+│                                                End           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Key Architectural Features:**
+- ⚡ **Parallel Execution** - 4 agents run simultaneously (30-40% faster)
+- 🔄 **State Management** - Type-safe state passing between agents
+- 🎯 **Specialized Agents** - Each agent focuses on one domain
+- 📊 **Observable Workflows** - Built-in Mermaid diagram generation
+
+**See full workflow visualization**: [WORKFLOW_VISUAL.md](WORKFLOW_VISUAL.md)
+
+### Project Structure
+
+```
+runaway-coach/
+├── api/                          # FastAPI routes
+│   ├── main.py                   # Application entry point
+│   └── routes/
+│       ├── quick_wins.py         # Quick Wins endpoints (Weather, VO2, Load)
+│       ├── enhanced_analysis.py  # Enhanced Strava data endpoints
+│       ├── analysis.py           # Legacy analysis endpoints
+│       ├── feedback.py           # Post-workout feedback
+│       ├── goals.py              # Goal management
+│       └── langgraph.py          # Direct workflow access
+├── core/
+│   ├── agents/                   # 8 specialized AI agents
+│   │   ├── supervisor_agent.py
+│   │   ├── performance_agent.py
+│   │   ├── weather_context_agent.py
+│   │   ├── vo2max_estimation_agent.py
+│   │   ├── training_load_agent.py
+│   │   ├── goal_strategy_agent.py
+│   │   ├── pace_optimization_agent.py
+│   │   └── workout_planning_agent.py
+│   └── workflows/                # LangGraph workflows
+│       ├── runner_analysis_workflow.py
+│       └── enhanced_runner_analysis_workflow.py
+├── integrations/                 # External services
+│   ├── supabase_client.py
+│   └── supabase_queries.py
+├── models/                       # Data models
+│   ├── __init__.py               # Basic Pydantic models
+│   └── strava.py                 # Full Strava data model
+├── utils/                        # Utilities
+│   ├── config.py                 # Pydantic settings
+│   ├── logger.py                 # Logging configuration
+│   └── auth.py                   # JWT authentication
+├── scripts/                      # Utility scripts
+│   ├── visualize_workflow.py     # Generate workflow diagrams
+│   └── deploy_check.sh           # Deployment verification
+├── tests/                        # Test files
+├── documentation/                # Comprehensive docs
+│   ├── QUICK_WINS_IMPLEMENTATION.md
+│   ├── IOS_CLAUDE_PROMPT.md
+│   ├── IOS_FEATURE_SPECS.md
+│   └── UPGRADE_PLAN.md
+├── requirements.txt              # Python dependencies
+├── Dockerfile                    # Production container
+├── cloudbuild.yaml              # Google Cloud Build config
+└── .env                         # Environment variables
+```
+
+---
+
+## 🏆 Quick Wins Endpoints
+
+### Comprehensive Analysis (All-in-One)
+```http
+GET /quick-wins/comprehensive-analysis
+Authorization: Bearer {jwt_token}
+```
+
+Returns weather impact + VO2 max + training load in one call.
+
+**Response:**
+```json
+{
+  "success": true,
+  "athlete_id": "94451852",
+  "analyses": {
+    "weather_context": { /* ... */ },
+    "vo2max_estimate": { /* ... */ },
+    "training_load": { /* ... */ }
+  },
+  "priority_recommendations": [
+    "ACWR is 0.91 (optimal zone). Maintain current training volume.",
+    "Your estimated VO2 max of 52.3 ml/kg/min places you in the 'good' category.",
+    "Train early morning (5-7am) or evening (7-9pm) to avoid peak heat."
+  ]
+}
+```
+
+### Individual Endpoints
+
+```http
+GET /quick-wins/weather-impact?limit=30
+GET /quick-wins/vo2max-estimate?limit=50
+GET /quick-wins/training-load?limit=60
+```
+
+**See full endpoint documentation**: [QUICK_START.md](QUICK_START.md)
+
+---
+
+## 💻 Installation
 
 ### Prerequisites
 
-- Python 3.9+
-- Virtual environment (recommended)
+- Python 3.9+ (3.13 recommended)
+- Virtual environment
 - Anthropic API key
-- Supabase account (optional)
-- Redis (optional, for caching)
+- Supabase account
 
 ### Local Setup
 
-1. **Clone the repository:**
+1. **Clone the repository**
 ```bash
-git clone <repository-url>
+git clone https://github.com/yourusername/runaway-coach.git
 cd runaway-coach
 ```
 
-2. **Create and activate virtual environment:**
+2. **Create virtual environment**
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
-3. **Install dependencies:**
+3. **Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-4. **Set up environment variables:**
+4. **Configure environment**
 ```bash
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env with your credentials
 ```
 
-5. **Run the application:**
+5. **Run the application**
 ```bash
 python -m uvicorn api.main:app --reload
 ```
 
-The API will be available at `http://localhost:8000`
+API available at: http://localhost:8000
 
-## 🔧 Environment Setup
-
-Create a `.env` file with the following variables:
+### Required Environment Variables
 
 ```env
-# Anthropic Claude Configuration
-ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
-CLAUDE_MODEL=claude-3-sonnet-20240229
+# Anthropic Claude
+ANTHROPIC_API_KEY=sk-ant-api03-your-key
+CLAUDE_MODEL=claude-3-5-sonnet-20241022
 
-# Supabase Configuration
+# Supabase
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_KEY=your-service-key
-
-# Redis Configuration (optional)
-REDIS_URL=redis://localhost:6379/0
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_JWT_SECRET=your-jwt-secret
 
 # API Configuration
+API_SECRET_KEY=your-secret-key
+API_ALGORITHM=HS256
 API_HOST=0.0.0.0
 API_PORT=8000
-API_SECRET_KEY=your-secret-key-here
-API_ALGORITHM=HS256
 
-# Logging
+# Authentication
+SWIFT_APP_API_KEY=your-api-key
+
+# Optional
 LOG_LEVEL=INFO
-LOG_FORMAT=json
-
-# Swift App Integration
-SWIFT_APP_BASE_URL=http://localhost:3000
-SWIFT_APP_API_KEY=your-swift-api-key
 ```
 
-## 🔌 API Endpoints
+---
 
-### Health & Status
+## 📚 API Documentation
 
-#### `GET /`
-Basic health check endpoint.
+### Interactive Documentation
 
-**Response:**
-```json
-{
-  "message": "Runaway Coach API",
-  "version": "0.1.0",
-  "status": "healthy",
-  "timestamp": "2024-01-15T10:30:00.000Z"
-}
+- **Swagger UI**: https://runaway-coach-api-203308554831.us-central1.run.app/docs
+- **ReDoc**: https://runaway-coach-api-203308554831.us-central1.run.app/redoc
+
+### Health Check
+
+```bash
+curl https://runaway-coach-api-203308554831.us-central1.run.app/health
 ```
-
-#### `GET /health`
-Detailed health check with agent status.
 
 **Response:**
 ```json
@@ -126,562 +350,362 @@ Detailed health check with agent status.
     "performance": "active",
     "goal": "active",
     "workout": "active",
-    "pace": "active"
+    "pace": "active",
+    "weather_context": "active",
+    "vo2max_estimation": "active",
+    "training_load": "active"
   },
-  "timestamp": "2024-01-15T10:30:00.000Z"
+  "timestamp": "2025-10-02T17:30:00.000Z"
 }
 ```
 
-### Analysis Endpoints
+### Authentication
 
-#### `POST /analysis/runner`
-Comprehensive runner analysis using AI agents.
+All endpoints (except `/` and `/health`) require authentication:
 
-**Request Body:**
-```json
-{
-  "user_id": "user123",
-  "activities": [
-    {
-      "id": "activity1",
-      "type": "run",
-      "distance": 5.0,
-      "duration": 1800,
-      "avg_pace": "6:00",
-      "date": "2024-01-15T08:00:00.000Z",
-      "heart_rate_avg": 160,
-      "elevation_gain": 50.0
-    }
-  ],
-  "goals": [
-    {
-      "id": "goal1",
-      "type": "race_time",
-      "target": "sub 20 minute 5K",
-      "deadline": "2024-06-01"
-    }
-  ],
-  "profile": {
-    "user_id": "user123",
-    "age": 28,
-    "gender": "male",
-    "experience_level": "intermediate",
-    "weekly_mileage": 25.0,
-    "best_times": {
-      "5K": "20:30",
-      "10K": "42:15"
-    },
-    "preferences": {
-      "preferred_workout_types": ["tempo", "intervals"],
-      "days_per_week": 4
-    }
-  }
-}
+```bash
+curl -X GET "https://runaway-coach-api-203308554831.us-central1.run.app/quick-wins/comprehensive-analysis" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "analysis": {
-    "performance_metrics": {
-      "weekly_mileage": 25.0,
-      "avg_pace": "6:30",
-      "consistency_score": 0.85
-    },
-    "recommendations": [
-      "Increase weekly mileage by 15%",
-      "Add tempo runs twice per week",
-      "Focus on interval training for speed"
-    ],
-    "ai_insights": "Based on your recent performances...",
-    "agent_metadata": {
-      "agents_used": ["supervisor", "anthropic_ai"],
-      "processing_time": 2.5,
-      "llm_available": true,
-      "model_used": "claude-3-sonnet-20240229"
-    }
-  },
-  "processing_time": 2.5
-}
-```
+**Supported authentication methods:**
+1. Supabase JWT tokens (recommended)
+2. API key (for testing)
 
-#### `POST /analysis/quick-insights`
-Quick performance insights without full analysis.
-
-**Request Body:**
-```json
-{
-  "activities_data": [
-    {
-      "id": "activity1",
-      "distance": 5.0,
-      "duration": 1800,
-      "avg_pace": "6:00",
-      "date": "2024-01-15T08:00:00.000Z"
-    }
-  ]
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "insights": {
-    "performance_trend": "improving",
-    "weekly_mileage": 25.0,
-    "consistency": 0.8,
-    "key_strengths": [
-      "Consistent pacing",
-      "Good endurance base",
-      "Strong weekly consistency"
-    ],
-    "top_recommendations": [
-      "Add speed work",
-      "Increase long run distance",
-      "Focus on recovery"
-    ]
-  }
-}
-```
-
-### Feedback Endpoints
-
-#### `POST /feedback/workout`
-Generate post-workout insights and feedback.
-
-**Request Body:**
-```json
-{
-  "activity": {
-    "id": "workout1",
-    "type": "run",
-    "distance": 8.0,
-    "duration": 2400,
-    "avg_pace": "5:00",
-    "date": "2024-01-15T07:00:00.000Z",
-    "heart_rate_avg": 175
-  },
-  "planned_workout": {
-    "type": "tempo",
-    "target_pace": "5:30",
-    "target_distance": 8.0
-  },
-  "runner_profile": {
-    "user_id": "user123",
-    "age": 28,
-    "experience_level": "intermediate"
-  }
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "insights": {
-    "performance_rating": 8.5,
-    "effort_level": "Hard",
-    "recommendations": [
-      "Excellent pacing throughout the run",
-      "Consider adding recovery run tomorrow",
-      "Heart rate was in optimal zone"
-    ],
-    "next_workout_suggestions": [
-      "Easy recovery run (6-8 km)",
-      "Strength training session",
-      "Rest day recommended"
-    ]
-  },
-  "processing_time": 1.2
-}
-```
-
-#### `POST /feedback/pace-recommendation`
-Generate pace recommendations based on recent performance.
-
-**Request Body:**
-```json
-{
-  "activities_data": [
-    {
-      "distance": 5.0,
-      "duration": 1500,
-      "avg_pace": "5:00",
-      "effort_level": "hard"
-    }
-  ]
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "pace_optimization": {
-    "current_fitness_level": "Advanced",
-    "recommended_paces": [
-      {
-        "pace_type": "easy",
-        "target_pace": "6:30",
-        "pace_range": "6:15-6:45",
-        "description": "Conversational pace for base building",
-        "heart_rate_zone": "Zone 2"
-      },
-      {
-        "pace_type": "tempo",
-        "target_pace": "5:15",
-        "pace_range": "5:00-5:30",
-        "description": "Comfortably hard, sustainable pace",
-        "heart_rate_zone": "Zone 3-4"
-      }
-    ],
-    "weekly_pace_distribution": {
-      "easy": 0.7,
-      "tempo": 0.2,
-      "interval": 0.1
-    }
-  }
-}
-```
-
-### Goal Management Endpoints
-
-#### `POST /goals/assess`
-Assess goal feasibility and progress.
-
-**Request Body:**
-```json
-{
-  "goals_data": [
-    {
-      "id": "goal1",
-      "type": "race_time",
-      "target": "sub 20 minute 5K",
-      "deadline": "2024-06-01",
-      "current_best": "20:30"
-    }
-  ],
-  "activities_data": [
-    {
-      "distance": 5.0,
-      "duration": 1230,
-      "date": "2024-01-15"
-    }
-  ]
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "goal_assessments": [
-    {
-      "goal_id": "goal1",
-      "goal_type": "race_time",
-      "current_status": "on_track",
-      "progress_percentage": 65.0,
-      "feasibility_score": 0.8,
-      "recommendations": [
-        "Increase weekly mileage by 15%",
-        "Add tempo runs twice weekly",
-        "Focus on 5K pace intervals"
-      ],
-      "timeline_adjustments": [
-        "Goal achievable in current timeline",
-        "Consider adding 2 weeks for optimal preparation"
-      ],
-      "key_metrics": {
-        "current_pace": "6:10",
-        "target_pace": "6:26",
-        "weekly_mileage": 25.0,
-        "target_mileage": 35.0
-      }
-    }
-  ]
-}
-```
-
-#### `POST /goals/training-plan`
-Generate a comprehensive training plan for a specific goal.
-
-**Request Body:**
-```json
-{
-  "goal_data": {
-    "type": "race_time",
-    "target": "sub 20 minute 5K",
-    "deadline": "2024-06-01"
-  },
-  "activities_data": [
-    {
-      "distance": 5.0,
-      "duration": 1230,
-      "recent_performance": true
-    }
-  ],
-  "plan_duration_weeks": 12
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "training_plan": {
-    "goal": {
-      "type": "race_time",
-      "target": "sub 20 minute 5K"
-    },
-    "duration_weeks": 12,
-    "weekly_schedule": [
-      {
-        "week": 1,
-        "workouts": [
-          {
-            "workout_type": "easy_run",
-            "duration_minutes": 45,
-            "distance_km": 8.0,
-            "target_pace": "6:30",
-            "description": "Easy conversational pace run",
-            "scheduled_date": "2024-01-22T07:00:00.000Z"
-          },
-          {
-            "workout_type": "tempo_run",
-            "duration_minutes": 35,
-            "distance_km": 6.0,
-            "target_pace": "5:45",
-            "description": "Tempo run at threshold pace",
-            "scheduled_date": "2024-01-24T07:00:00.000Z"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-## 📊 Data Models
-
-### Core Models
-
-#### `Activity`
-```python
-{
-  "id": str,
-  "type": str,
-  "distance": float,
-  "duration": int,  # seconds
-  "avg_pace": str,  # MM:SS format
-  "date": datetime,
-  "heart_rate_avg": int | None,
-  "elevation_gain": float | None
-}
-```
-
-#### `RunnerProfile`
-```python
-{
-  "user_id": str,
-  "age": int,
-  "gender": str,
-  "experience_level": str,  # "beginner", "intermediate", "advanced"
-  "weekly_mileage": float,
-  "best_times": dict,  # {"5K": "20:30", "10K": "42:15"}
-  "preferences": dict
-}
-```
-
-#### `WorkoutData`
-```python
-{
-  "activity": Activity,
-  "planned_workout": dict | None,
-  "runner_profile": RunnerProfile
-}
-```
+---
 
 ## 🤖 AI Agents
 
-The application uses multiple specialized AI agents:
+### 1. 🏃 Performance Analysis Agent
+**Analyzes running trends and metrics**
 
-### 1. **Supervisor Agent**
-- **Purpose**: Orchestrates overall analysis and coordinates other agents
-- **Capabilities**: 
-  - Comprehensive runner analysis
-  - AI-powered insights using Claude API
-  - Agent coordination and workflow management
+- Weekly mileage calculation
+- Consistency scoring (0-1)
+- Performance trend detection (improving/declining/stable)
+- Strength and weakness identification
+- Average pace analysis
 
-### 2. **Performance Analysis Agent**
-- **Purpose**: Analyzes running performance and identifies trends
-- **Capabilities**:
-  - Performance trend analysis (improving/declining/stable)
-  - Consistency scoring
-  - Strength and weakness identification
+### 2. 🌤️ Weather Context Agent
+**Unique competitive advantage**
 
-### 3. **Workout Planning Agent**
-- **Purpose**: Creates personalized workout plans
-- **Capabilities**:
-  - Workout type recommendations
-  - Training plan generation
-  - Post-workout analysis and feedback
+- Temperature and humidity analysis
+- Heat stress run detection
+- Pace degradation estimation
+- Heat acclimation level tracking
+- Optimal training time recommendations
 
-### 4. **Pace Optimization Agent**
-- **Purpose**: Optimizes running paces for different training zones
-- **Capabilities**:
-  - Zone-based pace recommendations
-  - Heart rate zone mapping
-  - Training distribution optimization
+**No competitor has this feature!**
 
-### 5. **Goal Strategy Agent**
-- **Purpose**: Manages goal setting and progress tracking
-- **Capabilities**:
-  - Goal feasibility assessment
-  - Progress tracking and timeline adjustment
-  - Strategic training plan development
+### 3. 💨 VO2 Max Estimation Agent
+**Multi-method fitness assessment**
 
-## 🔐 Authentication
+- VO2 max estimation (3 algorithms: Jack Daniels, Race Performance, HR-based)
+- Fitness level classification (Elite, Excellent, Good, Average, Below Average)
+- Race predictions for 5K, 10K, Half Marathon, Marathon
+- vVO2 max pace calculation
+- Confidence scoring
 
-The API uses JWT-based authentication with the following header:
+**Strava charges $12/mo for this - we provide it free!**
 
-```
-Authorization: Bearer <your-jwt-token>
-```
+### 4. ⚡ Training Load Agent
+**Injury prevention and recovery monitoring**
 
-All endpoints except `/` and `/health` require authentication.
+- Acute:Chronic Workload Ratio (ACWR)
+- Training Stress Score (TSS)
+- Recovery status assessment
+- Injury risk classification (Low, Moderate, High, Very High)
+- Training trend analysis
+- Fitness trend tracking
+- 7-day personalized workout plan
 
-### Authentication Flow
+**WHOOP charges $30/mo for TSS - we provide more features for free!**
 
-1. Obtain JWT token from your authentication service
-2. Include token in Authorization header
-3. Token is validated against `SWIFT_APP_API_KEY`
+### 5. 🎯 Goal Strategy Agent
+**AI-powered goal management**
 
-## 🐳 Docker Deployment
+- Goal feasibility assessment (0-1 score)
+- Progress percentage calculation
+- Timeline adjustment recommendations
+- Key metrics tracking
 
-### Build and Run
+### 6. 🏃‍♂️ Pace Optimization Agent
+**Zone-based training recommendations**
+
+- Heart rate zone mapping
+- Pace recommendations by zone
+- Training distribution optimization
+- Weather-adjusted pacing
+
+### 7. 📅 Workout Planning Agent
+**Personalized training plans**
+
+- 7-day workout generation
+- Workout type selection (Easy, Tempo, Interval, Long, Rest)
+- Duration and intensity targets
+- Gear rotation recommendations
+- Segment suggestions
+
+### 8. 🎓 Supervisor Agent
+**Workflow orchestration**
+
+- Coordinates all agents
+- Combines analysis results
+- Generates priority recommendations
+- Ensures data consistency
+
+---
+
+## 📊 Workflow Visualization
+
+### Generate Flow Diagram
 
 ```bash
-# Build the image
-docker build -t runaway-coach .
+python scripts/visualize_workflow.py
+```
 
-# Run the container
+**Generates:**
+- `WORKFLOW_DIAGRAM.md` - Auto-generated LangGraph diagram
+- `WORKFLOW_VISUAL.md` - Enhanced, colorful visualization with documentation
+
+**View online**: Open the Mermaid diagram at https://mermaid.live
+
+**See detailed visualization**: [WORKFLOW_VISUAL.md](WORKFLOW_VISUAL.md)
+
+---
+
+## 🚀 Deployment
+
+### Google Cloud Run (Production)
+
+**Current production deployment:**
+```
+https://runaway-coach-api-203308554831.us-central1.run.app
+```
+
+**Deploy new version:**
+```bash
+gcloud builds submit --config cloudbuild.yaml
+```
+
+**Configuration:**
+- Memory: 2Gi
+- CPU: 2
+- Timeout: 600s
+- Max instances: 10
+- Min instances: 0 (scales to zero)
+- Cold start: ~3-5 seconds
+- Warm response: <1 second
+
+### Docker
+
+**Build:**
+```bash
+docker build -t runaway-coach .
+```
+
+**Run:**
+```bash
 docker run -p 8000:8000 --env-file .env runaway-coach
 ```
 
-### Environment Variables for Docker
+### Manual Deployment
 
 ```bash
-# Required environment variables
-ANTHROPIC_API_KEY=your-anthropic-key
-SUPABASE_URL=your-supabase-url
-SUPABASE_ANON_KEY=your-supabase-anon-key
-SWIFT_APP_API_KEY=your-swift-api-key
-API_SECRET_KEY=your-secret-key
-```
+# Build and push
+gcloud builds submit --tag gcr.io/hermes-2024/runaway-coach
 
-### Cloud Run Deployment
-
-The Dockerfile is optimized for Google Cloud Run:
-
-```bash
-# Build and push to Google Container Registry
-gcloud builds submit --tag gcr.io/YOUR-PROJECT/runaway-coach
-
-# Deploy to Cloud Run
-gcloud run deploy runaway-coach \
-  --image gcr.io/YOUR-PROJECT/runaway-coach \
-  --platform managed \
+# Deploy
+gcloud run deploy runaway-coach-api \
+  --image gcr.io/hermes-2024/runaway-coach \
   --region us-central1 \
-  --allow-unauthenticated
+  --platform managed \
+  --allow-unauthenticated \
+  --memory 2Gi \
+  --cpu 2
 ```
 
-## 🔧 Development
+---
 
-### Project Structure
+## 📱 iOS Integration
 
-```
-runaway-coach/
-├── api/
-│   ├── main.py              # FastAPI application
-│   └── routes/
-│       ├── analysis.py      # Analysis endpoints
-│       ├── feedback.py      # Feedback endpoints
-│       └── goals.py         # Goal management endpoints
-├── core/
-│   └── agents/              # AI agent implementations
-│       ├── supervisor_agent.py
-│       ├── performance_agent.py
-│       ├── workout_planning_agent.py
-│       ├── pace_optimization_agent.py
-│       └── goal_strategy_agent.py
-├── models/
-│   └── __init__.py          # Pydantic data models
-├── utils/
-│   ├── config.py            # Configuration management
-│   └── logger.py            # Logging setup
-├── integrations/
-│   ├── supabase_client.py   # Supabase integration
-│   └── swift_interface.py   # Swift app interface
-├── requirements.txt         # Python dependencies
-├── pyproject.toml          # Project configuration
-├── dockerfile              # Docker configuration
-└── .env                    # Environment variables
+### Complete iOS Implementation Guide
+
+See: [documentation/IOS_CLAUDE_PROMPT.md](documentation/IOS_CLAUDE_PROMPT.md)
+
+**Quick integration:**
+
+```swift
+// API Configuration
+private let baseURL = "https://runaway-coach-api-203308554831.us-central1.run.app"
+
+// Fetch comprehensive analysis
+func fetchQuickWins() async throws -> QuickWinsResponse {
+    let url = URL(string: "\(baseURL)/quick-wins/comprehensive-analysis")!
+    var request = URLRequest(url: url)
+    request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+
+    let (data, _) = try await URLSession.shared.data(for: request)
+    return try JSONDecoder().decode(QuickWinsResponse.self, from: data)
+}
 ```
 
-### Running Tests
+**Authentication Fix (October 2025)**:
+The API now properly resolves Supabase auth UUIDs to athlete IDs. Your iOS app can continue sending the auth user ID from the JWT token without any code changes.
+
+See: [IOS_AUTH_FIX.md](IOS_AUTH_FIX.md)
+
+---
+
+## 💰 Cost Analysis
+
+### Monthly Costs
+
+| Service | Cost |
+|---------|------|
+| Open-Meteo API | **$0** (free) |
+| Anthropic Claude API | ~$1-3 (usage-based) |
+| Google Cloud Run | ~$5-10 (within free tier for moderate use) |
+| Supabase | **$0** (free tier) |
+| **Total** | **~$5-15/month** |
+
+### Competitive Comparison
+
+| Feature | Runaway Coach | Strava | WHOOP | Garmin |
+|---------|---------------|--------|-------|--------|
+| Weather Context | ✅ **FREE** | ❌ | ❌ | ❌ |
+| VO2 Max & Race Predictions | ✅ **FREE** | $12/mo | ❌ | ✅ Device |
+| ACWR Injury Risk | ✅ **FREE** | ❌ | ❌ | ❌ |
+| Training Load (TSS) | ✅ **FREE** | ❌ | $30/mo | ✅ Device |
+| Heat Acclimation | ✅ **FREE** | ❌ | ❌ | ❌ |
+| AI Coaching | ✅ **FREE** | ❌ | ❌ | ❌ |
+
+**You're competitive with or better than premium services at a fraction of the cost!**
+
+---
+
+## 🧪 Testing
+
+### Run Tests
 
 ```bash
-# Install development dependencies
+# Install dev dependencies
 pip install -e ".[dev]"
 
-# Run tests
+# Run all tests
 pytest
 
 # Run with coverage
 pytest --cov=runaway_coach
+
+# Run specific test
+python tests/test_anthropic.py
 ```
 
-### Code Quality
+### Production Testing
 
 ```bash
-# Format code
-black .
+# Test comprehensive analysis
+./scripts/test_quick_wins_production.sh
 
-# Lint code
-flake8 .
-
-# Type checking
-mypy .
+# Health check
+curl https://runaway-coach-api-203308554831.us-central1.run.app/health
 ```
 
-## 📝 API Documentation
+---
 
-Once the application is running, visit:
+## 📖 Documentation
 
-- **Swagger UI**: `http://localhost:8000/docs`
-- **ReDoc**: `http://localhost:8000/redoc`
+- **Quick Start Guide**: [QUICK_START.md](QUICK_START.md)
+- **Deployment Success**: [DEPLOYMENT_SUCCESS.md](DEPLOYMENT_SUCCESS.md)
+- **Production Testing**: [PRODUCTION_TESTED.md](PRODUCTION_TESTED.md)
+- **iOS Integration**: [IOS_AUTH_FIX.md](IOS_AUTH_FIX.md)
+- **Workflow Visualization**: [WORKFLOW_VISUAL.md](WORKFLOW_VISUAL.md)
+- **Cleanup Report**: [CLEANUP_REPORT.md](CLEANUP_REPORT.md)
+- **Nuxt Web App Prompt**: [NUXT_WEB_APP_PROMPT.md](NUXT_WEB_APP_PROMPT.md)
+
+### Feature Documentation
+
+- [Quick Wins Implementation](documentation/QUICK_WINS_IMPLEMENTATION.md)
+- [iOS Feature Specs](documentation/IOS_FEATURE_SPECS.md)
+- [Upgrade Plan](documentation/UPGRADE_PLAN.md)
+
+---
+
+## 🔒 Security
+
+- **JWT Authentication** via Supabase Auth
+- **API Key Fallback** for testing
+- **Secret Management** via Google Cloud Secret Manager
+- **No hardcoded secrets** in codebase
+- **CORS configured** for iOS app integration
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**1. "No activities found for user"**
+- Ensure you're using the correct user identifier
+- API accepts both athlete_id (integer) or auth_user_id (UUID)
+
+**2. "Token expired"**
+- Refresh your Supabase JWT token
+- Check token expiration time
+
+**3. Empty analyses in comprehensive analysis**
+- Verify you have 28+ days of activity data
+- Ensure activities have GPS coordinates for weather analysis
+- Check that activities include pace/speed data
+
+**4. Slow API response**
+- First request after idle may take 3-5s (cold start)
+- Subsequent requests are <1s
+- Consider Cloud Run min instances if needed
+
+---
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
 
 ## 📄 License
 
 This project is licensed under the MIT License.
 
-## 🆘 Support
+---
 
-For support and questions:
-- Check the API documentation at `/docs`
-- Review the health check endpoint at `/health`
-- Examine logs for detailed error information
+## 🙏 Acknowledgments
+
+- **Anthropic** - For the incredible Claude API
+- **LangGraph** - For the powerful workflow orchestration framework
+- **Supabase** - For the excellent database and auth platform
+- **Open-Meteo** - For free, high-quality weather data
+- **Strava** - For inspiration and the original activity data model
 
 ---
 
+## 📞 Support
+
+- **API Health**: https://runaway-coach-api-203308554831.us-central1.run.app/health
+- **API Docs**: https://runaway-coach-api-203308554831.us-central1.run.app/docs
+- **Issues**: Open a GitHub issue
+- **Latest Build**: Check Cloud Build console
+
+---
+
+<div align="center">
+
 **Built with ❤️ for runners by runners** 🏃‍♂️🏃‍♀️
+
+**Production**: https://runaway-coach-api-203308554831.us-central1.run.app
+
+[Get Started](QUICK_START.md) | [API Docs](https://runaway-coach-api-203308554831.us-central1.run.app/docs) | [iOS Integration](documentation/IOS_CLAUDE_PROMPT.md)
+
+</div>
