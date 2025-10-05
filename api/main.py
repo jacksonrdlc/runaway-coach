@@ -126,6 +126,7 @@ from .routes.goals import router as goals_router
 from .routes.langgraph import router as langgraph_router
 from .routes.enhanced_analysis import router as enhanced_analysis_router
 from .routes.quick_wins import router as quick_wins_router
+from .routes.chat import router as chat_router
 
 app.include_router(analysis_router)
 app.include_router(feedback_router)
@@ -133,6 +134,7 @@ app.include_router(goals_router)
 app.include_router(langgraph_router)
 app.include_router(enhanced_analysis_router)
 app.include_router(quick_wins_router, prefix="/quick-wins", tags=["Quick Wins"])
+app.include_router(chat_router)
 
 # Add startup event
 @app.on_event("startup")

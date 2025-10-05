@@ -57,13 +57,43 @@ class AnalysisResponse(BaseModel):
     error_message: Optional[str] = None
     processing_time: float
 
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+    timestamp: Optional[datetime] = None
+
+class ChatRequest(BaseModel):
+    message: str
+    conversation_id: Optional[str] = None
+    context: Optional[Dict[str, Any]] = None  # Recent activities, goals, etc.
+
+class ChatResponse(BaseModel):
+    success: bool
+    message: str
+    conversation_id: str
+    triggered_analysis: Optional[Dict[str, Any]] = None  # If workflow was invoked
+    error_message: Optional[str] = None
+    processing_time: float
+
+class Conversation(BaseModel):
+    id: str
+    user_id: str
+    messages: List[ChatMessage]
+    context: Optional[Dict[str, Any]] = None
+    created_at: datetime
+    updated_at: datetime
+
 __all__ = [
     "WorkoutType",
-    "Activity", 
+    "Activity",
     "RunnerProfile",
     "WorkoutData",
     "WorkoutInsights",
     "WorkoutFeedbackResponse",
     "AgenticAnalysis",
-    "AnalysisResponse"
+    "AnalysisResponse",
+    "ChatMessage",
+    "ChatRequest",
+    "ChatResponse",
+    "Conversation"
 ]
