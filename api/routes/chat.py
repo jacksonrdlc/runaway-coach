@@ -44,7 +44,14 @@ async def send_message(
     when the user requests detailed analysis, training plans, or goal assessments.
     """
     start_time = time.time()
-    user_id = current_user.get("sub")  # JWT subject contains user_id
+
+    # Extract user_id from JWT token - matches Quick Wins pattern
+    user_id = current_user.get("sub") or current_user.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="No user identifier in token")
+
+    # Log the extracted user_id for debugging
+    logger.info(f"Extracted user_id from token: {user_id}")
 
     try:
         logger.info(f"Processing chat message from user: {user_id}")
@@ -140,7 +147,10 @@ async def get_conversation(
     current_user: dict = Depends(get_current_user)
 ):
     """Retrieve a conversation by ID"""
-    user_id = current_user.get("sub")
+    # Extract user_id from JWT token - matches Quick Wins pattern
+    user_id = current_user.get("sub") or current_user.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="No user identifier in token")
 
     try:
         result = supabase.table("conversations").select("*").eq("id", conversation_id).eq("user_id", user_id).execute()
@@ -166,7 +176,10 @@ async def list_conversations(
     current_user: dict = Depends(get_current_user)
 ):
     """List recent conversations for the current user"""
-    user_id = current_user.get("sub")
+    # Extract user_id from JWT token - matches Quick Wins pattern
+    user_id = current_user.get("sub") or current_user.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="No user identifier in token")
 
     try:
         result = supabase.table("conversations") \
@@ -192,7 +205,10 @@ async def delete_conversation(
     current_user: dict = Depends(get_current_user)
 ):
     """Delete a conversation"""
-    user_id = current_user.get("sub")
+    # Extract user_id from JWT token - matches Quick Wins pattern
+    user_id = current_user.get("sub") or current_user.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="No user identifier in token")
 
     try:
         result = supabase.table("conversations") \
